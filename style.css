@@ -215,6 +215,61 @@ button {
     box-shadow: 0 0 0 3px rgba(0, 176, 80, 0.15);
 }
 
+/* RANKING DO MÊS (Estilizado, Limpo e Profissional) */
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.ranking-item {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 12px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.ranking-item:hover {
+    border-color: rgba(0, 176, 80, 0.5);
+    transform: translateX(2px);
+}
+
+.ranking-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.ranking-position {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.ranking-points {
+    background-color: rgba(0, 176, 80, 0.15);
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
 /* QUADRO KANBAN */
 .board-section {
     background-color: var(--bg-card);
