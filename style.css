@@ -104,6 +104,15 @@ button {
     filter: brightness(1.1);
 }
 
+.btn-danger {
+    background-color: var(--danger);
+    color: #fff;
+}
+
+.btn-danger:hover {
+    filter: brightness(1.1);
+}
+
 /* CONTAINER PRINCIPAL */
 .container {
     max-width: 1300px;
@@ -215,7 +224,7 @@ button {
     box-shadow: 0 0 0 3px rgba(0, 176, 80, 0.15);
 }
 
-/* RANKING DO MÊS (Estilizado, Limpo e Profissional) */
+/* RANKING DO MÊS */
 .ranking-list {
     display: flex;
     flex-direction: column;
@@ -270,7 +279,7 @@ button {
     font-weight: 700;
 }
 
-/* QUADRO KANBAN */
+/* QUADRO KANBAN & CARDS DE TAREFA ESTILIZADOS */
 .board-section {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -302,7 +311,7 @@ button {
     border: 1px solid var(--border-color);
     border-radius: var(--radius);
     padding: 1.2rem;
-    min-height: 350px;
+    min-height: 380px;
     display: flex;
     flex-direction: column;
 }
@@ -320,7 +329,85 @@ button {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+}
+
+/* CARD INDIVIDUAL DA TAREFA */
+.task-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: var(--transition);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.task-card:hover {
+    border-color: rgba(0, 176, 80, 0.4);
+    transform: translateY(-2px);
+}
+
+.task-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    word-break: break-word;
+}
+
+.task-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.task-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.task-actions select {
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    outline: none;
+    cursor: pointer;
+}
+
+.task-actions select:focus {
+    border-color: var(--primary);
+}
+
+.btn-delete-task {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--danger);
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete-task:hover {
+    background-color: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+    box-shadow: none;
 }
 
 /* BADGES DE DESIGNERS */
