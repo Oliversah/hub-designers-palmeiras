@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub de Designers - Palmeiras</title>
+    <!-- Conectando o CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Ícones (FontAwesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Biblioteca html2canvas para gerar a imagem do quadro -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+    <!-- CABEÇALHO -->
+    <header class="header">
+        <div class="logo">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h1>Hub de Designers <span>Palmeiras</span></h1>
+        </div>
+        <div class="header-actions">
+            <button class="btn-warning" onclick="encerrarMes()"><i class="fa-solid fa-flag-checkered"></i> Encerrar Mês</button>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="container">
+        
+        <!-- CARDS DE RESUMO -->
+        <section class="stats">
+            <div class="card">
+                <i class="fa-solid fa-users"></i>
+                <div>
+                    <h3>Designers no Servidor</h3>
+                    <p id="count-designers">0</p>
+                </div>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-list-check"></i>
+                <div>
+                    <h3>Tarefas Pendentes</h3>
+                    <p id="count-todo">0</p>
+                </div>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-circle-check"></i>
+                <div>
+                    <h3>Concluídas (Mês)</h3>
+                    <p id="count-done">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RANKING E PONTUAÇÃO ATUAL -->
+        <section class="form-section">
+            <h2><i class="fa-solid fa-trophy"></i> Ranking do Mês (10 pts por arte concluída)</h2>
+            <div id="ranking-container" class="ranking-list">
+                <!-- Preenchido via JS -->
+            </div>
+        </section>
+
+        <!-- SEÇÃO DE GERENCIAR DESIGNERS -->
+        <section class="form-section">
+            <h2><i class="fa-solid fa-user-plus"></i> Cadastrar Novo Designer</h2>
+            <form id="designer-form" onsubmit="adicionarDesigner(event)">
+                <div class="form-group">
+                    <label for="designer-name">Nome do Designer</label>
+                    <input type="text" id="designer-name" placeholder="Ex: Lucas" required>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Adicionar Designer</button>
+            </form>
+            <div id="designers-list-badge" class="designers-badges"></div>
+        </section>
+
+        <!-- FORMULÁRIO DE TAREFAS -->
+        <section class="form-section">
+            <h2><i class="fa-solid fa-plus-circle"></i> Adicionar Nova Tarefa</h2>
+            <form id="task-form" onsubmit="adicionarTarefa(event)">
+                <div class="form-group">
+                    <label for="task-title">Título da Arte / Tarefa</label>
+                    <input type="text" id="task-title" placeholder="Ex: Matchday vs São Paulo" required>
+                </div>
+                <div class="form-group">
+                    <label for="task-designer-select">Selecione o Designer</label>
+                    <select id="task-designer-select" required>
+                        <option value="">Selecione um designer...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-status">Status Inicial</label>
+                    <select id="task-status">
+                        <option value="todo">A Fazer</option>
+                        <option value="doing">Em Andamento</option>
+                        <option value="done">Concluído</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Cadastrar Tarefa</button>
+            </form>
+        </section>
+
+        <!-- QUADRO DE TAREFAS / MONITORAMENTO -->
+        <section class="board-section" id="quadro-acompanhamento">
+            <div class="section-title">
+                <h2><i class="fa-solid fa-columns"></i> Quadro de Acompanhamento</h2>
+            </div>
+
+            <div class="kanban-board">
+                <!-- Coluna: A Fazer -->
+                <div class="kanban-column">
+                    <h3>A Fazer</h3>
+                    <div class="task-list" id="list-todo"></div>
+                </div>
+
+                <!-- Coluna: Em Andamento -->
+                <div class="kanban-column">
+                    <h3>Em Andamento</h3>
+                    <div class="task-list" id="list-doing"></div>
+                </div>
+
+                <!-- Coluna: Concluído -->
+                <div class="kanban-column">
+                    <h3>Concluído</h3>
+                    <div class="task-list" id="list-done"></div>
+                </div>
+            </div>
+
+            <!-- Botão de Baixar Imagem Centralizado Abaixo do Quadro -->
+            <div style="display: flex; justify-content: center; margin-top: 25px;">
+                <button class="btn-primary" onclick="baixarQuadroImagem()">
+                    <i class="fa-solid fa-camera"></i> Baixar Imagem do Quadro
+                </button>
+            </div>
+        </section>
+
+        <!-- HISTÓRICO DE MESES ANTERIORES -->
+        <section class="form-section" style="margin-top: 35px;">
+            <h2><i class="fa-solid fa-box-archive"></i> Histórico de Meses Encerrados</h2>
+            <div id="historico-container">
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Nenhum mês encerrado ainda.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer>
+        <p>&copy; 2026 Hub de Designers - Palmeiras. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Biblioteca do Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Conectando o JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

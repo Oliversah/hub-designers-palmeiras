@@ -1,0 +1,497 @@
+:root {
+    --palmeiras-green: #002D16;
+    --palmeiras-emerald: #004b23;
+    --palmeiras-light: #006400;
+    --palmeiras-neon: #9ef01a;
+    --palmeiras-accent: #38b000;
+    --bg-dark: #0b0f0e;
+    --bg-surface: #131a17;
+    --card-bg: #1a2420;
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --border-color: rgba(255, 255, 255, 0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(0, 75, 35, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(158, 240, 26, 0.05) 0%, transparent 40%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Cabeçalho Estilizado */
+.header {
+    background: linear-gradient(135deg, var(--palmeiras-green), var(--palmeiras-emerald));
+    color: white;
+    padding: 25px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--palmeiras-neon);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.3rem;
+}
+
+.logo i {
+    font-size: 2rem;
+    color: var(--palmeiras-neon);
+    filter: drop-shadow(0 0 8px rgba(158, 240, 26, 0.4));
+}
+
+.logo h1 {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.logo span {
+    color: var(--palmeiras-neon);
+    text-shadow: 0 0 10px rgba(158, 240, 26, 0.3);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Botão de Encerrar Mês */
+.btn-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.btn-warning:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+}
+
+/* Container Principal */
+.container {
+    max-width: 1280px;
+    width: 100%;
+    margin: 40px auto;
+    padding: 0 24px;
+    flex: 1;
+}
+
+/* Cards de Estatísticas Modernos */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 35px;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 24px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.card i {
+    font-size: 2.5rem;
+    color: var(--palmeiras-neon);
+    background: rgba(158, 240, 26, 0.08);
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.card h3 {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.card p {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+}
+
+/* Seção de Formulário */
+.form-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    margin-bottom: 35px;
+}
+
+.form-section h2 {
+    font-size: 1.25rem;
+    color: white;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-section h2 i {
+    color: var(--palmeiras-neon);
+}
+
+#designer-form, #task-form {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr auto;
+    gap: 20px;
+    align-items: flex-end;
+}
+
+#designer-form {
+    grid-template-columns: 1fr auto;
+}
+
+@media(max-width: 900px) {
+    #task-form, #designer-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.form-group input, .form-group select {
+    background: #0f1714;
+    border: 1px solid var(--border-color);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--palmeiras-neon);
+    box-shadow: 0 0 0 3px rgba(158, 240, 26, 0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--palmeiras-accent), var(--palmeiras-light));
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(56, 176, 0, 0.2);
+}
+
+.btn-primary:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(56, 176, 0, 0.35);
+}
+
+/* Badges de Designers Cadastrados */
+.designers-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.designer-badge {
+    background: #0f1714;
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+}
+
+.designer-badge span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.designer-badge span i {
+    color: var(--palmeiras-neon);
+    font-size: 0.8rem;
+}
+
+.designer-badge button {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 1.1rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.designer-badge button:hover {
+    color: #ff6b6b;
+}
+
+/* Estilo do Ranking */
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ranking-item {
+    background: #0f1714;
+    border: 1px solid var(--border-color);
+    padding: 14px 20px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ranking-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.ranking-pos {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--palmeiras-neon);
+    width: 25px;
+}
+
+.ranking-name {
+    font-weight: 600;
+    color: white;
+    font-size: 1rem;
+}
+
+.ranking-stats {
+    display: flex;
+    gap: 20px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.ranking-stats strong {
+    color: white;
+}
+
+.ranking-points {
+    background: rgba(158, 240, 26, 0.1);
+    border: 1px solid rgba(158, 240, 26, 0.3);
+    color: var(--palmeiras-neon);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+}
+
+/* Seção do Quadro Kanban */
+.board-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.section-title {
+    margin-bottom: 25px;
+}
+
+.section-title h2 {
+    color: white;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title h2 i {
+    color: var(--palmeiras-neon);
+}
+
+.kanban-board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.kanban-column {
+    background: #0f1714;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.kanban-column h3 {
+    font-size: 1rem;
+    margin-bottom: 18px;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-height: 200px;
+}
+
+/* Cards Individuais das Tarefas */
+.task-card {
+    background: #16211c;
+    border: 1px solid var(--border-color);
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
+}
+
+/* Cores das Bordas por Status */
+.task-card.todo {
+    border-left: 4px solid #ef4444; /* Vermelho para A Fazer */
+}
+
+.task-card.doing {
+    border-left: 4px solid #f59e0b; /* Laranja para Em Andamento */
+}
+
+.task-card.done {
+    border-left: 4px solid var(--palmeiras-neon); /* Verde para Concluído */
+}
+
+.task-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.task-card h4 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+    color: white;
+    font-weight: 600;
+}
+
+.task-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+}
+
+.task-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.task-actions select {
+    background: #0b0f0e;
+    color: var(--text-main);
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+}
+
+.btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.btn-delete:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* Histórico de Meses */
+.historico-card {
+    background: #0f1714;
+    border: 1px solid var(--border-color);
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.historico-info h4 {
+    color: var(--palmeiras-neon);
+    margin-bottom: 10px;
+    font-size: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+/* Rodapé */
+footer {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 60px;
+}
