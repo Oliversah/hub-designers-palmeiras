@@ -279,7 +279,7 @@ button {
     font-weight: 700;
 }
 
-/* QUADRO KANBAN & CARDS DE TAREFA ESTILIZADOS */
+/* QUADRO KANBAN & CARDS DE TAREFA COM BORDAS COLORIDAS */
 .board-section {
     background-color: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -332,10 +332,9 @@ button {
     gap: 12px;
 }
 
-/* CARD INDIVIDUAL DA TAREFA */
+/* CARDS COM CORES DE BORDA ESPECÍFICAS POR STATUS */
 .task-card {
     background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 14px;
     display: flex;
@@ -345,9 +344,27 @@ button {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
+/* Laranja para A Fazer */
+.task-card.status-todo {
+    border: 1px solid var(--warning);
+    border-left: 4px solid var(--warning);
+}
+
+/* Vermelho para Em Andamento */
+.task-card.status-doing {
+    border: 1px solid var(--danger);
+    border-left: 4px solid var(--danger);
+}
+
+/* Verde para Concluído */
+.task-card.status-done {
+    border: 1px solid var(--primary);
+    border-left: 4px solid var(--primary);
+}
+
 .task-card:hover {
-    border-color: rgba(0, 176, 80, 0.4);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .task-card-title {
@@ -407,7 +424,38 @@ button {
     background-color: var(--danger);
     color: #fff;
     border-color: var(--danger);
-    box-shadow: none;
+}
+
+/* HISTÓRICO DE MESES ENCERRADOS REFORMATADO */
+.historico-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin-bottom: 12px;
+    transition: var(--transition);
+}
+
+.historico-card:hover {
+    border-color: var(--primary);
+}
+
+.historico-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.historico-vencedor {
+    color: var(--warning);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 /* BADGES DE DESIGNERS */

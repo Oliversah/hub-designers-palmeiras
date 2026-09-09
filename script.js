@@ -4,7 +4,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_UID1Tbtk7d4dgBCacvf-Wg_ckL7JS5G';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// SENHA DO ADMINISTRADOR (Você pode alterar aqui se quiser)
+// SENHA DO ADMINISTRADOR
 const SENHA_ADMIN = 'palmeiras1914';
 
 let designers = [];
@@ -156,7 +156,7 @@ function renderizarDesigners() {
         if (badgesDiv) {
             const badge = document.createElement('div');
             badge.className = 'designer-badge';
-            badge.innerHTML = `<span><i class="fa-solid fa-user"></i> ${designer}</span> <button onclick="excluirDesigner('${designer}')">&times;</button>`;
+            badge.innerHTML = `<span><i class="fa-solid fa-user"></i> ${designer}</span> <button onclick="excluirDesigner('${designer}')" style="background:transparent; border:none; color:var(--danger); cursor:pointer; margin-left:4px;">&times;</button>`;
             badgesDiv.appendChild(badge);
         }
 
@@ -197,10 +197,10 @@ function renderizarRanking() {
         let rankHtml = `
             <div class="ranking-item">
                 <div class="ranking-info">
-                    <span class="ranking-pos">#${index + 1}</span>
+                    <span class="ranking-position">#${index + 1}</span>
                     <span class="ranking-name">${item.designer}</span>
                 </div>
-                <div class="ranking-stats">
+                <div class="ranking-stats" style="display: flex; gap: 15px; align-items: center; font-size: 0.85rem; color: var(--text-muted);">
                     <span>Concluídas: <strong>${item.concluidas}</strong></span>
                     <span>Em Andamento: <strong>${item.emAndamento}</strong></span>
                     <span class="ranking-points">${item.pontos} pts</span>
@@ -225,7 +225,6 @@ function renderizarTarefas() {
     let contDone = 0;
 
     tarefas.forEach((tarefa) => {
-        // Se for admin, mostra o select para mudar status e o botão de excluir. Senão, mostra apenas fixo.
         let acoesHtml = '';
         if (isAdmin) {
             acoesHtml = `
@@ -235,7 +234,7 @@ function renderizarTarefas() {
                         <option value="doing" ${tarefa.status === 'doing' ? 'selected' : ''}>Em Andamento</option>
                         <option value="done" ${tarefa.status === 'done' ? 'selected' : ''}>Concluído</option>
                     </select>
-                    <button class="btn-delete" onclick="excluirTarefa('${tarefa.id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn-delete-task" onclick="excluirTarefa('${tarefa.id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
         } else {
@@ -243,10 +242,13 @@ function renderizarTarefas() {
         }
 
         let cardHtml = `
-            <div class="task-card ${tarefa.status}">
-                <h4>${tarefa.titulo}</h4>
-                <p>Designer: <strong>${tarefa.designer}</strong></p>
-                ${acoesHtml}
+            <div class="task-card status-${tarefa.status}">
+                <div class="task-card-title">${tarefa.titulo}</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Designer: <strong>${tarefa.designer}</strong></div>
+                <div class="task-card-footer">
+                    <span>ID: #${tarefa.id}</span>
+                    ${acoesHtml}
+                </div>
             </div>
         `;
 
@@ -386,36 +388,28 @@ function renderizarHistorico() {
     }
 
     historicoMeses.forEach((mes) => {
+        let vencedor = mes.ranking && mes.ranking.length > 0 ? mes.ranking[0] : null;
+        let textoVencedor = vencedor ? `<div class="historico-vencedor"><i class="fa-solid fa-trophy"></i> Destaque: ${vencedor.designer} (${vencedor.concluidas} artes)</div>` : '';
+        
         let htmlItensRanking = mes.ranking.map(r => `<li>${r.designer}: <strong>${r.concluidas} artes</strong> (${r.pontos} pts)</li>`).join('');
         
+        let botaoApagar = isAdmin ? `<button class="btn-delete-task" onclick="apagarMesHistorico('${mes.id}')" title="Apagar Mês"><i class="fa-solid fa-trash"></i></button>` : '';
+
         let cardHtml = `
             <div class="historico-card">
-                <div class="historico-info" style="width: 100%;">
-                    <h4>Mês Encerrado: ${mes.data}</h4>
-                    <ul style="padding-left: 20px; color: var(--text-main); font-size: 0.9rem; display: flex; flex-direction: column; gap: 4px;">
+                <div class="historico-info">
+                    <div class="historico-titulo">Mês Encerrado: ${mes.data}</div>
+                    ${textoVencedor}
+                    <ul style="padding-left: 18px; color: var(--text-muted); font-size: 0.85rem; margin-top: 6px; display: flex; flex-direction: column; gap: 2px;">
                         ${htmlItensRanking}
                     </ul>
                 </div>
-                <button class="btn-delete" onclick="apagarMesHistorico('${mes.id}')" title="Apagar Mês do Histórico"><i class="fa-solid fa-trash"></i></button>
+                <div>
+                    ${botaoApagar}
+                </div>
             </div>
         `;
         historicoContainer.innerHTML += cardHtml;
-    });
-}
-
-// --- GERAR IMAGEM DO QUADRO ---
-function baixarQuadroImagem() {
-    const quadro = document.getElementById('quadro-acompanhamento');
-    if (!quadro) return;
-
-    html2canvas(quadro, {
-        backgroundColor: '#1a2420',
-        scale: 2
-    }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'quadro-designers-palmeiras.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
     });
 }
 
