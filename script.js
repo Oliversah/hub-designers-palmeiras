@@ -60,6 +60,7 @@ function atualizarInterfaceAdmin() {
     
     renderizarDesigners();
     renderizarTarefas();
+    renderizarHistorico(); // Atualiza o histórico para mostrar/esconder o botão de lixeira conforme o login
 }
 
 // --- FUNÇÃO DE INICIALIZAÇÃO ---
@@ -241,12 +242,25 @@ function renderizarTarefas() {
             acoesHtml = `<div class="task-actions"><span style="font-size: 0.8rem; color: var(--text-muted);">Status: ${tarefa.status.toUpperCase()}</span></div>`;
         }
 
+        // Formata a data do jogo (YYYY-MM-DD para DD/MM/YYYY)
+        let dataFormatada = '';
+        if (tarefa.data_jogo) {
+            const partes = tarefa.data_jogo.split('-');
+            if (partes.length === 3) {
+                dataFormatada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+            } else {
+                dataFormatada = tarefa.data_jogo;
+            }
+        }
+
         let cardHtml = `
             <div class="task-card status-${tarefa.status}">
                 <div class="task-card-title">${tarefa.titulo}</div>
                 <div style="font-size: 0.85rem; color: var(--text-muted);">Designer: <strong>${tarefa.designer}</strong></div>
                 <div class="task-card-footer">
-                    <span>ID: #${tarefa.id}</span>
+                    <span style="display: flex; align-items: center; gap: 6px; color: var(--warning); font-size: 0.85rem;">
+                        <i class="fa-solid fa-calendar-days"></i> ${dataFormatada || 'Sem data'}
+                    </span>
                     ${acoesHtml}
                 </div>
             </div>
@@ -274,12 +288,14 @@ async function adicionarTarefa(event) {
     if (!isAdmin) return alert('Acesso negado. Faça login como admin.');
 
     const titleInput = document.getElementById('task-title');
+    const dateInput = document.getElementById('task-date');
     const designerSelect = document.getElementById('task-designer-select');
     const statusSelect = document.getElementById('task-status');
 
     if (!titleInput || !designerSelect || !statusSelect) return;
 
     const titulo = titleInput.value;
+    const data_jogo = dateInput ? dateInput.value : null;
     const designer = designerSelect.value;
     const status = statusSelect.value;
 
@@ -290,7 +306,7 @@ async function adicionarTarefa(event) {
 
     const { error } = await supabaseClient
         .from('tarefas')
-        .insert([{ titulo, designer, status }]);
+        .insert([{ titulo, data_jogo, designer, status }]);
 
     if (error) {
         alert('Erro ao adicionar tarefa.');
@@ -299,6 +315,7 @@ async function adicionarTarefa(event) {
     }
 
     titleInput.value = '';
+    if (dateInput) dateInput.value = '';
     designerSelect.selectedIndex = 0;
 
     await atualizarTudo();
@@ -371,7 +388,11 @@ async function apagarMesHistorico(id) {
     if (!isAdmin) return alert('Acesso negado. Faça login como admin.');
 
     if (confirm('Deseja realmente apagar este registro do histórico mensal?')) {
-        await supabaseClient.from('historico_meses').delete().eq('id', id);
+        const { error } = await supabaseClient.from('historico_meses').delete().eq('id', id);
+        if (error) {
+            alert('Erro ao apagar o mês do histórico.');
+            return;
+        }
         await atualizarTudo();
     }
 }
@@ -389,27 +410,46 @@ function renderizarHistorico() {
 
     historicoMeses.forEach((mes) => {
         let vencedor = mes.ranking && mes.ranking.length > 0 ? mes.ranking[0] : null;
-        let textoVencedor = vencedor ? `<div class="historico-vencedor"><i class="fa-solid fa-trophy"></i> Destaque: ${vencedor.designer} (${vencedor.concluidas} artes)</div>` : '';
+        let textoVencedor = vencedor ? `<div class="historico-vencedor"><i class="fa-solid fa-trophy"></i> Destaque: <strong>${vencedor.designer}</strong> (${vencedor.concluidas} artes)</div>` : '';
         
-        let htmlItensRanking = mes.ranking.map(r => `<li>${r.designer}: <strong>${r.concluidas} artes</strong> (${r.pontos} pts)</li>`).join('');
+        let htmlItensRanking = mes.ranking.map(r => `
+            <div class="historico-ranking-row">
+                <span>${r.designer}</span>
+                <span class="historico-ranking-score"><strong>${r.concluidas} artes</strong> (${r.pontos} pts)</span>
+            </div>
+        `).join('');
         
         let botaoApagar = isAdmin ? `<button class="btn-delete-task" onclick="apagarMesHistorico('${mes.id}')" title="Apagar Mês"><i class="fa-solid fa-trash"></i></button>` : '';
 
         let cardHtml = `
             <div class="historico-card">
-                <div class="historico-info">
-                    <div class="historico-titulo">Mês Encerrado: ${mes.data}</div>
-                    ${textoVencedor}
-                    <ul style="padding-left: 18px; color: var(--text-muted); font-size: 0.85rem; margin-top: 6px; display: flex; flex-direction: column; gap: 2px;">
-                        ${htmlItensRanking}
-                    </ul>
-                </div>
-                <div>
+                <div class="historico-top">
+                    <div class="historico-titulo"><i class="fa-regular fa-calendar-check"></i> Mês Encerrado: ${mes.data}</div>
                     ${botaoApagar}
+                </div>
+                ${textoVencedor}
+                <div class="historico-ranking-list">
+                    ${htmlItensRanking}
                 </div>
             </div>
         `;
         historicoContainer.innerHTML += cardHtml;
+    });
+}
+
+// --- FUNÇÃO PARA CAPTURAR A IMAGEM DO QUADRO ---
+function baixarQuadroImagem() {
+    const quadro = document.getElementById('quadro-acompanhamento');
+    if (!quadro) return;
+
+    html2canvas(quadro, {
+        backgroundColor: '#0c0e12',
+        scale: 2
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'quadro-designers-palmeiras.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
     });
 }
 
