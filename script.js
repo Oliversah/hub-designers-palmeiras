@@ -4,10 +4,63 @@ const SUPABASE_ANON_KEY = 'sb_publishable_UID1Tbtk7d4dgBCacvf-Wg_ckL7JS5G';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Variáveis locais que vão armazenar os dados vindos do Supabase
+// SENHA DO ADMINISTRADOR (Você pode alterar aqui se quiser)
+const SENHA_ADMIN = 'palmeiras1914';
+
 let designers = [];
 let tarefas = [];
 let historicoMeses = [];
+let isAdmin = sessionStorage.getItem('hub_admin') === 'true';
+
+// --- CONTROLE DE ADMIN ---
+function tentarLoginAdmin() {
+    if (isAdmin) {
+        if (confirm('Deseja sair do modo Administrador?')) {
+            sessionStorage.removeItem('hub_admin');
+            isAdmin = false;
+            atualizarInterfaceAdmin();
+            alert('Modo Administrador desativado.');
+        }
+        return;
+    }
+
+    const senhaDigitada = prompt('Digite a senha de Administrador:');
+    if (senhaDigitada === SENHA_ADMIN) {
+        sessionStorage.setItem('hub_admin', 'true');
+        isAdmin = true;
+        atualizarInterfaceAdmin();
+        alert('Bem-vindo, Administrador! Painel liberado.');
+    } else if (senhaDigitada !== null) {
+        alert('Senha incorreta!');
+    }
+}
+
+function atualizarInterfaceAdmin() {
+    const elementosAdmin = document.querySelectorAll('.admin-only');
+    const btnToggle = document.getElementById('btn-admin-toggle');
+    const visitanteSec = document.getElementById('visitante-designers-section');
+
+    elementosAdmin.forEach(el => {
+        el.style.display = isAdmin ? 'block' : 'none';
+    });
+
+    if (visitanteSec) {
+        visitanteSec.style.display = isAdmin ? 'none' : 'block';
+    }
+
+    if (btnToggle) {
+        if (isAdmin) {
+            btnToggle.innerHTML = '<i class="fa-solid fa-unlock"></i> Sair do Modo Admin';
+            btnToggle.className = 'btn-warning';
+        } else {
+            btnToggle.innerHTML = '<i class="fa-solid fa-lock"></i> Entrar como Admin';
+            btnToggle.className = 'btn-primary';
+        }
+    }
+    
+    renderizarDesigners();
+    renderizarTarefas();
+}
 
 // --- FUNÇÃO DE INICIALIZAÇÃO ---
 async function atualizarTudo() {
@@ -16,24 +69,22 @@ async function atualizarTudo() {
     renderizarTarefas();
     renderizarRanking();
     renderizarHistorico();
+    atualizarInterfaceAdmin();
 }
 
 // --- BUSCAR DADOS DO SUPABASE ---
 async function carregarDadosDoBanco() {
     try {
-        // Busca os designers
         const resDesigners = await supabaseClient.from('designers').select('*');
         if (!resDesigners.error) {
             designers = resDesigners.data.map(d => d.nome);
         }
 
-        // Busca as tarefas
         const resTarefas = await supabaseClient.from('tarefas').select('*');
         if (!resTarefas.error) {
             tarefas = resTarefas.data;
         }
 
-        // Busca o histórico
         const resHistorico = await supabaseClient.from('historico_meses').select('*');
         if (!resHistorico.error) {
             historicoMeses = resHistorico.data;
@@ -46,6 +97,8 @@ async function carregarDadosDoBanco() {
 // --- GERENCIAMENTO DE DESIGNERS ---
 async function adicionarDesigner(event) {
     event.preventDefault();
+    if (!isAdmin) return alert('Acesso negado. Faça login como admin.');
+
     const inputElement = document.getElementById('designer-name');
     if (!inputElement) return;
     
@@ -68,6 +121,8 @@ async function adicionarDesigner(event) {
 }
 
 async function excluirDesigner(nome) {
+    if (!isAdmin) return alert('Acesso negado. Faça login como admin.');
+
     if (confirm(`Deseja remover ${nome} da lista de designers?`)) {
         const { error } = await supabaseClient.from('designers').delete().eq('nome', nome);
         
@@ -82,10 +137,12 @@ async function excluirDesigner(nome) {
 function renderizarDesigners() {
     const select = document.getElementById('task-designer-select');
     const badgesDiv = document.getElementById('designers-list-badge');
+    const badgesViewDiv = document.getElementById('designers-list-badge-view');
     const valorAtual = select ? select.value : '';
 
     if (select) select.innerHTML = '<option value="">Selecione um designer...</option>';
     if (badgesDiv) badgesDiv.innerHTML = '';
+    if (badgesViewDiv) badgesViewDiv.innerHTML = '';
 
     designers.forEach(designer => {
         if (select) {
@@ -101,6 +158,13 @@ function renderizarDesigners() {
             badge.className = 'designer-badge';
             badge.innerHTML = `<span><i class="fa-solid fa-user"></i> ${designer}</span> <button onclick="excluirDesigner('${designer}')">&times;</button>`;
             badgesDiv.appendChild(badge);
+        }
+
+        if (badgesViewDiv) {
+            const badgeView = document.createElement('div');
+            badgeView.className = 'designer-badge';
+            badgeView.innerHTML = `<span><i class="fa-solid fa-user"></i> ${designer}</span>`;
+            badgesViewDiv.appendChild(badgeView);
         }
     });
 
@@ -161,10 +225,10 @@ function renderizarTarefas() {
     let contDone = 0;
 
     tarefas.forEach((tarefa) => {
-        let cardHtml = `
-            <div class="task-card ${tarefa.status}">
-                <h4>${tarefa.titulo}</h4>
-                <p>Designer: <strong>${tarefa.designer}</strong></p>
+        // Se for admin, mostra o select para mudar status e o botão de excluir. Senão, mostra apenas fixo.
+        let acoesHtml = '';
+        if (isAdmin) {
+            acoesHtml = `
                 <div class="task-actions">
                     <select onchange="mudarStatus('${tarefa.id}', this.value)">
                         <option value="todo" ${tarefa.status === 'todo' ? 'selected' : ''}>A Fazer</option>
@@ -173,6 +237,16 @@ function renderizarTarefas() {
                     </select>
                     <button class="btn-delete" onclick="excluirTarefa('${tarefa.id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
                 </div>
+            `;
+        } else {
+            acoesHtml = `<div class="task-actions"><span style="font-size: 0.8rem; color: var(--text-muted);">Status: ${tarefa.status.toUpperCase()}</span></div>`;
+        }
+
+        let cardHtml = `
+            <div class="task-card ${tarefa.status}">
+                <h4>${tarefa.titulo}</h4>
+                <p>Designer: <strong>${tarefa.designer}</strong></p>
+                ${acoesHtml}
             </div>
         `;
 
@@ -195,6 +269,8 @@ function renderizarTarefas() {
 
 async function adicionarTarefa(event) {
     event.preventDefault();
+    if (!isAdmin) return alert('Acesso negado. Faça login como admin.');
+
     const titleInput = document.getElementById('task-title');
     const designerSelect = document.getElementById('task-designer-select');
     const statusSelect = document.getElementById('task-status');
@@ -227,6 +303,8 @@ async function adicionarTarefa(event) {
 }
 
 async function mudarStatus(id, novoStatus) {
+    if (!isAdmin) return alert('Acesso negado. Faça login como admin.');
+
     const { error } = await supabaseClient
         .from('tarefas')
         .update({ status: novoStatus })
@@ -240,6 +318,8 @@ async function mudarStatus(id, novoStatus) {
 }
 
 async function excluirTarefa(id) {
+    if (!isAdmin) return alert('Acesso negado. Faça login como admin.');
+
     if(confirm('Tem certeza que deseja apagar esta tarefa?')) {
         const { error } = await supabaseClient
             .from('tarefas')
@@ -256,6 +336,8 @@ async function excluirTarefa(id) {
 
 // --- ENCERRAR MÊS E HISTÓRICO ---
 async function encerrarMes() {
+    if (!isAdmin) return alert('Acesso negado. Faça login como admin.');
+
     if (designers.length === 0) {
         alert('Não há designers cadastrados para encerrar o mês.');
         return;
@@ -276,10 +358,7 @@ async function encerrarMes() {
     let dataAtual = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
     dataAtual = dataAtual.charAt(0).toUpperCase() + dataAtual.slice(1);
 
-    // Salva o histórico no Supabase
     await supabaseClient.from('historico_meses').insert([{ data: dataAtual, ranking: pontuacoesFinais }]);
-
-    // Apaga todas as tarefas atuais do banco
     await supabaseClient.from('tarefas').delete().neq('id', 0);
 
     await atualizarTudo();
@@ -287,6 +366,8 @@ async function encerrarMes() {
 }
 
 async function apagarMesHistorico(id) {
+    if (!isAdmin) return alert('Acesso negado. Faça login como admin.');
+
     if (confirm('Deseja realmente apagar este registro do histórico mensal?')) {
         await supabaseClient.from('historico_meses').delete().eq('id', id);
         await atualizarTudo();
@@ -338,7 +419,7 @@ function baixarQuadroImagem() {
     });
 }
 
-// --- TEMPO REAL (ATUALIZAÇÃO AUTOMÁTICA) ---
+// --- TEMPO REAL ---
 supabaseClient
   .channel('public-db-changes')
   .on('postgres_changes', { event: '*', schema: 'public' }, () => {
@@ -346,5 +427,5 @@ supabaseClient
   })
   .subscribe();
 
-// Inicializa a aplicação buscando os dados online
+// Inicialização
 atualizarTudo();

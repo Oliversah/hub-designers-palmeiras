@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub de Designers - Palmeiras</title>
-    <!-- Conectando o CSS -->
     <link rel="stylesheet" href="style.css">
-    <!-- Ícones (FontAwesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Biblioteca html2canvas para gerar a imagem do quadro -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
@@ -20,7 +17,12 @@
             <h1>Hub de Designers <span>Palmeiras</span></h1>
         </div>
         <div class="header-actions">
-            <button class="btn-warning" onclick="encerrarMes()"><i class="fa-solid fa-flag-checkered"></i> Encerrar Mês</button>
+            <button id="btn-admin-toggle" class="btn-primary" onclick="tentarLoginAdmin()">
+                <i class="fa-solid fa-lock"></i> Entrar como Admin
+            </button>
+            <button class="btn-warning admin-only" onclick="encerrarMes()" style="display: none;">
+                <i class="fa-solid fa-flag-checkered"></i> Encerrar Mês
+            </button>
         </div>
     </header>
 
@@ -55,35 +57,39 @@
         <!-- RANKING E PONTUAÇÃO ATUAL -->
         <section class="form-section">
             <h2><i class="fa-solid fa-trophy"></i> Ranking do Mês (10 pts por arte concluída)</h2>
-            <div id="ranking-container" class="ranking-list">
-                <!-- Preenchido via JS -->
-            </div>
+            <div id="ranking-container" class="ranking-list"></div>
         </section>
 
-        <!-- SEÇÃO DE GERENCIAR DESIGNERS -->
-        <section class="form-section">
+        <!-- SEÇÃO DE GERENCIAR DESIGNERS (Apenas Admin) -->
+        <section class="form-section admin-only" style="display: none;">
             <h2><i class="fa-solid fa-user-plus"></i> Cadastrar Novo Designer</h2>
             <form id="designer-form" onsubmit="adicionarDesigner(event)">
                 <div class="form-group">
                     <label for="designer-name">Nome do Designer</label>
-                    <input type="text" id="designer-name" placeholder="Ex: Lucas" required>
+                    <input type="text" id="designer-name" placeholder="Ex: Lucas">
                 </div>
                 <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Adicionar Designer</button>
             </form>
             <div id="designers-list-badge" class="designers-badges"></div>
         </section>
+        
+        <!-- Lista de designers visual para visitantes comuns -->
+        <section class="form-section" id="visitante-designers-section">
+            <h2><i class="fa-solid fa-users"></i> Designers no Servidor</h2>
+            <div id="designers-list-badge-view" class="designers-badges"></div>
+        </section>
 
-        <!-- FORMULÁRIO DE TAREFAS -->
-        <section class="form-section">
+        <!-- FORMULÁRIO DE TAREFAS (Apenas Admin) -->
+        <section class="form-section admin-only" style="display: none;">
             <h2><i class="fa-solid fa-plus-circle"></i> Adicionar Nova Tarefa</h2>
             <form id="task-form" onsubmit="adicionarTarefa(event)">
                 <div class="form-group">
                     <label for="task-title">Título da Arte / Tarefa</label>
-                    <input type="text" id="task-title" placeholder="Ex: Matchday vs São Paulo" required>
+                    <input type="text" id="task-title" placeholder="Ex: Matchday vs São Paulo">
                 </div>
                 <div class="form-group">
                     <label for="task-designer-select">Selecione o Designer</label>
-                    <select id="task-designer-select" required>
+                    <select id="task-designer-select">
                         <option value="">Selecione um designer...</option>
                     </select>
                 </div>
@@ -106,26 +112,20 @@
             </div>
 
             <div class="kanban-board">
-                <!-- Coluna: A Fazer -->
                 <div class="kanban-column">
                     <h3>A Fazer</h3>
                     <div class="task-list" id="list-todo"></div>
                 </div>
-
-                <!-- Coluna: Em Andamento -->
                 <div class="kanban-column">
                     <h3>Em Andamento</h3>
                     <div class="task-list" id="list-doing"></div>
                 </div>
-
-                <!-- Coluna: Concluído -->
                 <div class="kanban-column">
                     <h3>Concluído</h3>
                     <div class="task-list" id="list-done"></div>
                 </div>
             </div>
 
-            <!-- Botão de Baixar Imagem Centralizado Abaixo do Quadro -->
             <div style="display: flex; justify-content: center; margin-top: 25px;">
                 <button class="btn-primary" onclick="baixarQuadroImagem()">
                     <i class="fa-solid fa-camera"></i> Baixar Imagem do Quadro
@@ -134,7 +134,7 @@
         </section>
 
         <!-- HISTÓRICO DE MESES ANTERIORES -->
-        <section class="form-section" style="margin-top: 35px;">
+        <section class="form-section admin-only" style="margin-top: 35px; display: none;">
             <h2><i class="fa-solid fa-box-archive"></i> Histórico de Meses Encerrados</h2>
             <div id="historico-container">
                 <p style="color: var(--text-muted); font-size: 0.9rem;">Nenhum mês encerrado ainda.</p>
@@ -143,15 +143,11 @@
 
     </main>
 
-    <!-- RODAPÉ -->
     <footer>
         <p>&copy; 2026 Hub de Designers - Palmeiras. Todos os direitos reservados.</p>
     </footer>
 
-    <!-- Biblioteca do Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Conectando o JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
