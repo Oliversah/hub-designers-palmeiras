@@ -1,4 +1,4 @@
-// Configuração do Supabase (Substitua com suas chaves reais)
+// Configuração do Supabase
 const SUPABASE_URL = 'https://zescvxpzuehwxrolpwwu.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_UID1Tbtk7d4dgBCacvf-Wg_ckL7JS5G';
 
@@ -33,7 +33,7 @@ async function carregarDadosDoBanco() {
             tarefas = resTarefas.data;
         }
 
-        // Busca o histórico (se tiver a tabela criada)
+        // Busca o histórico
         const resHistorico = await supabaseClient.from('historico_meses').select('*');
         if (!resHistorico.error) {
             historicoMeses = resHistorico.data;
@@ -46,7 +46,10 @@ async function carregarDadosDoBanco() {
 // --- GERENCIAMENTO DE DESIGNERS ---
 async function adicionarDesigner(event) {
     event.preventDefault();
-    const nome = document.getElementById('designer-name').value.trim();
+    const inputElement = document.getElementById('designer-name');
+    if (!inputElement) return;
+    
+    const nome = inputElement.value.trim();
 
     if (nome && !designers.includes(nome)) {
         const { error } = await supabaseClient.from('designers').insert([{ nome }]);
@@ -57,7 +60,7 @@ async function adicionarDesigner(event) {
             return;
         }
 
-        document.getElementById('designer-name').value = '';
+        inputElement.value = '';
         await atualizarTudo();
     } else {
         alert('Este designer já está cadastrado ou o nome está vazio.');
@@ -158,7 +161,6 @@ function renderizarTarefas() {
     let contDone = 0;
 
     tarefas.forEach((tarefa) => {
-        // Usamos o id gerado pelo Supabase ou o índice local se não houver id
         let cardHtml = `
             <div class="task-card ${tarefa.status}">
                 <h4>${tarefa.titulo}</h4>
@@ -193,9 +195,15 @@ function renderizarTarefas() {
 
 async function adicionarTarefa(event) {
     event.preventDefault();
-    const titulo = document.getElementById('task-title').value;
-    const designer = document.getElementById('task-designer-select').value;
-    const status = document.getElementById('task-status').value;
+    const titleInput = document.getElementById('task-title');
+    const designerSelect = document.getElementById('task-designer-select');
+    const statusSelect = document.getElementById('task-status');
+
+    if (!titleInput || !designerSelect || !statusSelect) return;
+
+    const titulo = titleInput.value;
+    const designer = designerSelect.value;
+    const status = statusSelect.value;
 
     if (!designer) {
         alert('Por favor, selecione um designer!');
@@ -212,8 +220,8 @@ async function adicionarTarefa(event) {
         return;
     }
 
-    document.getElementById('task-title').value = '';
-    document.getElementById('task-designer-select').selectedIndex = 0;
+    titleInput.value = '';
+    designerSelect.selectedIndex = 0;
 
     await atualizarTudo();
 }
@@ -272,7 +280,7 @@ async function encerrarMes() {
     await supabaseClient.from('historico_meses').insert([{ data: dataAtual, ranking: pontuacoesFinais }]);
 
     // Apaga todas as tarefas atuais do banco
-    await supabaseClient.from('tarefas').delete().neq('id', 0); // deleta todas
+    await supabaseClient.from('tarefas').delete().neq('id', 0);
 
     await atualizarTudo();
     alert('Mês encerrado e salvo no histórico com sucesso!');
@@ -329,6 +337,14 @@ function baixarQuadroImagem() {
         link.click();
     });
 }
+
+// --- TEMPO REAL (ATUALIZAÇÃO AUTOMÁTICA) ---
+supabaseClient
+  .channel('public-db-changes')
+  .on('postgres_changes', { event: '*', schema: 'public' }, () => {
+    atualizarTudo();
+  })
+  .subscribe();
 
 // Inicializa a aplicação buscando os dados online
 atualizarTudo();
