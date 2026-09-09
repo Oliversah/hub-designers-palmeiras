@@ -12,7 +12,7 @@
     --success-hover: #2ea043;
     --danger: #da3633;
     --danger-hover: #f85149;
-    --warning: #d29922;
+    --warning: #f59e0b;
 }
 
 * {
@@ -101,10 +101,10 @@ button:active {
 
 .btn-warning {
     background-color: var(--warning);
-    color: #fff;
+    color: #111;
 }
 .btn-warning:hover {
-    background-color: #bb8819;
+    filter: brightness(1.1);
 }
 
 .btn-danger {
@@ -218,32 +218,34 @@ input:focus, select:focus {
     flex-grow: 1;
 }
 
-/* --- CARDS DE TAREFA COM BORDA EM DEGRADÊ NO HOVER --- */
+/* --- CARDS DE TAREFA COM BORDA ARREDONDADA E BRILHO NO HOVER --- */
 .task-card {
     background-color: var(--bg-card);
-    border-radius: 10px;
-    padding: 14px;
+    border-radius: 12px;
+    padding: 16px;
     position: relative;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 2px solid transparent; /* Invisível por padrão */
-}
-
-/* Hover Degradê Laranja para A Fazer e Em Andamento */
-.task-card.status-todo:hover,
-.task-card.status-doing:hover {
-    border-image: linear-gradient(135deg, #ff7e00, #ffba08) 1;
-    box-shadow: 0 6px 15px rgba(255, 126, 0, 0.2);
-}
-
-/* Hover Degradê Verde para Concluído */
-.task-card.status-done:hover {
-    border-image: linear-gradient(135deg, #06d6a0, #1b9aaa) 1;
-    box-shadow: 0 6px 15px rgba(6, 214, 160, 0.2);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    border: 1px solid var(--border-color);
 }
 
 .task-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+}
+
+/* Hover Laranja para A Fazer e Em Andamento */
+.task-card.status-todo:hover,
+.task-card.status-doing:hover {
+    border-color: rgba(245, 158, 11, 0.7);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.18), 
+                inset 0 0 15px rgba(245, 158, 11, 0.05);
+}
+
+/* Hover Verde para Concluído */
+.task-card.status-done:hover {
+    border-color: rgba(0, 176, 80, 0.7);
+    box-shadow: 0 6px 20px rgba(0, 176, 80, 0.18), 
+                inset 0 0 15px rgba(0, 176, 80, 0.05);
 }
 
 .task-card-title {
