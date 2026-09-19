@@ -60,7 +60,7 @@ function atualizarInterfaceAdmin() {
     
     renderizarDesigners();
     renderizarTarefas();
-    renderizarHistorico(); // Atualiza o histórico para mostrar/esconder o botão de lixeira conforme o login
+    renderizarHistorico(); 
 }
 
 // --- FUNÇÃO DE INICIALIZAÇÃO ---
@@ -242,7 +242,6 @@ function renderizarTarefas() {
             acoesHtml = `<div class="task-actions"><span style="font-size: 0.8rem; color: var(--text-muted);">Status: ${tarefa.status.toUpperCase()}</span></div>`;
         }
 
-        // Formata a data do jogo (YYYY-MM-DD para DD/MM/YYYY)
         let dataFormatada = '';
         if (tarefa.data_jogo) {
             const partes = tarefa.data_jogo.split('-');
@@ -419,6 +418,7 @@ function renderizarHistorico() {
             </div>
         `).join('');
         
+        // Exibe o botão de apagar apenas se o usuário for Admin
         let botaoApagar = isAdmin ? `<button class="btn-delete-task" onclick="apagarMesHistorico('${mes.id}')" title="Apagar Mês"><i class="fa-solid fa-trash"></i></button>` : '';
 
         let cardHtml = `
