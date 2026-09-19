@@ -9,7 +9,7 @@ const SENHA_ADMIN = 'palmeiras1914';
 
 let designers = [];
 let tarefas = [];
-let tarefasConcluidasHistoricoGeral = []; // Armazena todas as tarefas concluídas de todos os tempos para o ranking geral
+let tarefasConcluidasHistoricoGeral = []; 
 let historicoMeses = [];
 let isAdmin = sessionStorage.getItem('hub_admin') === 'true';
 
@@ -91,12 +91,10 @@ async function carregarDadosDoBanco() {
         if (!resHistorico.error) {
             historicoMeses = resHistorico.data;
             
-            // Reconstrói o histórico geral de concluídas somando os meses arquivados + tarefas ativas concluídas
             tarefasConcluidasHistoricoGeral = [];
             historicoMeses.forEach(mes => {
                 if (mes.ranking && Array.isArray(mes.ranking)) {
                     mes.ranking.forEach(r => {
-                        // Cria um array virtual de concluídas para contabilizar no acumulado geral
                         for (let i = 0; i < r.concluidas; i++) {
                             tarefasConcluidasHistoricoGeral.push({ designer: r.designer, status: 'done' });
                         }
@@ -187,7 +185,7 @@ function renderizarDesigners() {
     if (countElement) countElement.innerText = designers.length;
 }
 
-// --- RANKING E PONTUAÇÃO (ACUMULADA TOTAL) ---
+// --- RANKING E PONTUAÇÃO ---
 function renderizarRanking() {
     const rankingContainer = document.getElementById('ranking-container');
     if (!rankingContainer) return;
@@ -199,7 +197,6 @@ function renderizarRanking() {
         return;
     }
 
-    // Junta as tarefas do mês atual com o histórico de meses passados para formar o total acumulado
     const todasConcluidas = [
         ...tarefas.filter(t => t.status === 'done'),
         ...tarefasConcluidasHistoricoGeral
@@ -207,7 +204,7 @@ function renderizarRanking() {
 
     let pontuacoes = designers.map(designer => {
         let concluidasTotal = todasConcluidas.filter(t => t.designer === designer).length;
-        let emAndamentoAtivo = tarefas.filter(t => t.designer === designer && t.status === 'doing').length;
+        let emAndamentoAtivo = tarefas.filter(t => t.designer === designer && t.status === 'todo').length;
         let pontos = concluidasTotal * 10;
         return { designer, concluidas: concluidasTotal, emAndamento: emAndamentoAtivo, pontos };
     });
@@ -251,15 +248,16 @@ function renderizarTarefas() {
             acoesHtml = `
                 <div class="task-actions">
                     <select onchange="mudarStatus('${tarefa.id}', this.value)">
-                        <option value="todo" ${tarefa.status === 'todo' ? 'selected' : ''}>A Fazer</option>
-                        <option value="doing" ${tarefa.status === 'doing' ? 'selected' : ''}>Em Andamento</option>
+                        <option value="todo" ${tarefa.status === 'todo' ? 'selected' : ''}>Em andamento</option>
+                        <option value="doing" ${tarefa.status === 'doing' ? 'selected' : ''}>Não concluída</option>
                         <option value="done" ${tarefa.status === 'done' ? 'selected' : ''}>Concluído</option>
                     </select>
                     <button class="btn-delete-task" onclick="excluirTarefa('${tarefa.id}')" title="Excluir"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
         } else {
-            acoesHtml = `<div class="task-actions"><span style="font-size: 0.8rem; color: var(--text-muted);">Status: ${tarefa.status.toUpperCase()}</span></div>`;
+            let nomeStatusVisivel = tarefa.status === 'todo' ? 'Em andamento' : tarefa.status === 'doing' ? 'Não concluída' : 'Concluído';
+            acoesHtml = `<div class="task-actions"><span style="font-size: 0.8rem; color: var(--text-muted);">Status: ${nomeStatusVisivel}</span></div>`;
         }
 
         let dataFormatada = '';
@@ -385,7 +383,6 @@ async function encerrarMes() {
         return;
     }
 
-    // Calcula apenas as tarefas concluídas neste ciclo atual antes de limpar
     let pontuacoesFinais = designers.map(designer => {
         let concluidas = tarefas.filter(t => t.designer === designer && t.status === 'done').length;
         let pontos = concluidas * 10;

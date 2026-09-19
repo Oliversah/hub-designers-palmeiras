@@ -8,6 +8,9 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖌️</text></svg>">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- html2canvas para download da imagem -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
@@ -43,7 +46,7 @@
             <div class="card">
                 <i class="fa-solid fa-list-check"></i>
                 <div>
-                    <h3>Tarefas Pendentes</h3>
+                    <h3>Em Andamento</h3>
                     <p id="count-todo">0</p>
                 </div>
             </div>
@@ -56,7 +59,7 @@
             </div>
         </section>
 
-        <!-- RANKING E PONTUAÇÃO GERAL (ACUMULADA) -->
+        <!-- RANKING E PONTUAÇÃO GERAL -->
         <section class="form-section">
             <h2><i class="fa-solid fa-trophy" style="color: #f1c40f;"></i> Ranking Geral (10 pts por arte concluída)</h2>
             <div id="ranking-container" class="ranking-list"></div>
@@ -102,8 +105,8 @@
                 <div class="form-group">
                     <label for="task-status">Status Inicial</label>
                     <select id="task-status">
-                        <option value="todo">A Fazer</option>
-                        <option value="doing">Em Andamento</option>
+                        <option value="todo">Em Andamento</option>
+                        <option value="doing">Não concluída</option>
                         <option value="done">Concluído</option>
                     </select>
                 </div>
@@ -119,11 +122,11 @@
 
             <div class="kanban-board">
                 <div class="kanban-column">
-                    <h3>A Fazer</h3>
+                    <h3>Em andamento</h3>
                     <div class="task-list" id="list-todo"></div>
                 </div>
                 <div class="kanban-column">
-                    <h3>Em Andamento</h3>
+                    <h3>Não concluída</h3>
                     <div class="task-list" id="list-doing"></div>
                 </div>
                 <div class="kanban-column">
@@ -139,7 +142,7 @@
             </div>
         </section>
 
-        <!-- HISTÓRICO DE MESES ANTERIORES (Visível para todos) -->
+        <!-- HISTÓRICO DE MESES ANTERIORES -->
         <section class="form-section" style="margin-top: 35px;">
             <h2><i class="fa-solid fa-box-archive"></i> Histórico de Meses Encerrados</h2>
             <div id="historico-container">
