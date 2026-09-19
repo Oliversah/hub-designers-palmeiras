@@ -3,145 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Designers - Acompanhamento</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- html2canvas para download da imagem -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
+    <title>Hub de Designers - Palmeiras</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖌️</text></svg>">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
-    <header class="main-header">
-        <div class="header-content">
-            <h1><i class="fa-solid fa-palette"></i> Painel de Controle de Designers</h1>
-            <p>Acompanhamento de tarefas e estatísticas de artes</p>
+    <!-- CABEÇALHO -->
+    <header class="header">
+        <div class="logo">
+            <i class="fa-solid fa-shield-halved"></i>
+            <h1>Hub de Designers <span>Palmeiras</span></h1>
         </div>
         <div class="header-actions">
             <button id="btn-admin-toggle" class="btn-primary" onclick="tentarLoginAdmin()">
                 <i class="fa-solid fa-lock"></i> Entrar como Admin
             </button>
+            <button class="btn-warning admin-only" onclick="encerrarMes()" style="display: none;">
+                <i class="fa-solid fa-flag-checkered"></i> Encerrar Mês
+            </button>
         </div>
     </header>
 
-    <main class="dashboard-container" id="quadro-acompanhamento">
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="container">
         
-        <!-- SEÇÃO DO RANKING -->
-        <section class="ranking-section">
+        <!-- CARDS DE RESUMO -->
+        <section class="stats">
+            <div class="card">
+                <i class="fa-solid fa-users"></i>
+                <div>
+                    <h3>Designers no Servidor</h3>
+                    <p id="count-designers">0</p>
+                </div>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-list-check"></i>
+                <div>
+                    <h3>Tarefas Pendentes</h3>
+                    <p id="count-todo">0</p>
+                </div>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-circle-check"></i>
+                <div>
+                    <h3>Concluídas (Mês)</h3>
+                    <p id="count-done">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RANKING E PONTUAÇÃO GERAL (ACUMULADA) -->
+        <section class="form-section">
             <h2><i class="fa-solid fa-trophy" style="color: #f1c40f;"></i> Ranking Geral (10 pts por arte concluída)</h2>
-            <div id="ranking-container" class="ranking-grid">
-                <!-- Preenchido via JS -->
+            <div id="ranking-container" class="ranking-list"></div>
+        </section>
+
+        <!-- SEÇÃO DE GERENCIAR DESIGNERS (Apenas Admin) -->
+        <section class="form-section admin-only" style="display: none;">
+            <h2><i class="fa-solid fa-user-plus"></i> Cadastrar Novo Designer</h2>
+            <form id="designer-form" onsubmit="adicionarDesigner(event)">
+                <div class="form-group">
+                    <label for="designer-name">Nome do Designer</label>
+                    <input type="text" id="designer-name" placeholder="Ex: Lucas">
+                </div>
+                <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Adicionar Designer</button>
+            </form>
+            <div id="designers-list-badge" class="designers-badges"></div>
+        </section>
+        
+        <!-- Lista de designers visual para visitantes comuns -->
+        <section class="form-section" id="visitante-designers-section">
+            <h2><i class="fa-solid fa-users"></i> Designers no Servidor</h2>
+            <div id="designers-list-badge-view" class="designers-badges"></div>
+        </section>
+
+        <!-- FORMULÁRIO DE TAREFAS (Apenas Admin) -->
+        <section class="form-section admin-only" style="display: none;">
+            <h2><i class="fa-solid fa-plus-circle"></i> Adicionar Nova Tarefa</h2>
+            <form id="task-form" onsubmit="adicionarTarefa(event)">
+                <div class="form-group">
+                    <label for="task-title">Título da Arte / Tarefa</label>
+                    <input type="text" id="task-title" placeholder="Ex: Matchday vs São Paulo">
+                </div>
+                <div class="form-group">
+                    <label for="task-date">Data do Jogo / Prazo</label>
+                    <input type="date" id="task-date">
+                </div>
+                <div class="form-group">
+                    <label for="task-designer-select">Selecione o Designer</label>
+                    <select id="task-designer-select">
+                        <option value="">Selecione um designer...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-status">Status Inicial</label>
+                    <select id="task-status">
+                        <option value="todo">A Fazer</option>
+                        <option value="doing">Em Andamento</option>
+                        <option value="done">Concluído</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fa-solid fa-plus"></i> Cadastrar Tarefa</button>
+            </form>
+        </section>
+
+        <!-- QUADRO DE TAREFAS / MONITORAMENTO -->
+        <section class="board-section" id="quadro-acompanhamento">
+            <div class="section-title">
+                <h2><i class="fa-solid fa-columns"></i> Quadro de Acompanhamento</h2>
+            </div>
+
+            <div class="kanban-board">
+                <div class="kanban-column">
+                    <h3>A Fazer</h3>
+                    <div class="task-list" id="list-todo"></div>
+                </div>
+                <div class="kanban-column">
+                    <h3>Em Andamento</h3>
+                    <div class="task-list" id="list-doing"></div>
+                </div>
+                <div class="kanban-column">
+                    <h3>Concluído</h3>
+                    <div class="task-list" id="list-done"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: center; margin-top: 25px;">
+                <button class="btn-primary" onclick="baixarQuadroImagem()">
+                    <i class="fa-solid fa-camera"></i> Baixar Imagem do Quadro
+                </button>
             </div>
         </section>
 
-        <!-- PAINEL EXCLUSIVO PARA ADMINISTRADORES (Gerenciamento) -->
-        <section class="admin-only admin-controls-panel" style="display: none;">
-            <div class="admin-panel-header">
-                <h3><i class="fa-solid fa-screwdriver-wrench"></i> Painel Administrativo</h3>
-                <button class="btn-danger-soft" onclick="encerrarMes()"><i class="fa-solid fa-calendar-xmark"></i> Encerrar Mês Atual</button>
-            </div>
-            
-            <div class="admin-forms-grid">
-                <!-- Formulário Adicionar Designer -->
-                <div class="admin-card">
-                    <h4>Adicionar Novo Designer</h4>
-                    <form onsubmit="adicionarDesigner(event)">
-                        <div class="input-group">
-                            <input type="text" id="designer-name" placeholder="Nome do Designer..." required>
-                            <button type="submit" class="btn-success">Adicionar</button>
-                        </div>
-                    </form>
-                    <div id="designers-list-badge" class="badges-container" style="margin-top: 15px;">
-                        <!-- Badges de exclusão de designers -->
-                    </div>
-                </div>
-
-                <!-- Formulário Adicionar Tarefa -->
-                <div class="admin-card">
-                    <h4>Adicionar Nova Tarefa / Arte</h4>
-                    <form onsubmit="adicionarTarefa(event)">
-                        <div class="form-grid-inputs">
-                            <input type="text" id="task-title" placeholder="Título da Arte / Partida..." required>
-                            <input type="date" id="task-date">
-                            <select id="task-designer-select" required>
-                                <option value="">Selecione um designer...</option>
-                            </select>
-                            <select id="task-status">
-                                <option value="todo">A Fazer</option>
-                                <option value="doing">Em Andamento</option>
-                                <option value="done">Concluído</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-primary" style="margin-top: 12px; width: 100%;">Cadastrar Tarefa</button>
-                    </form>
-                </div>
-            </div>
-        </section>
-
-        <!-- VISUALIZAÇÃO DE DESIGNERS (Modo Visitante) -->
-        <section id="visitante-designers-section" class="visitante-section">
-            <h4><i class="fa-solid fa-users"></i> Designers Cadastrados:</h4>
-            <div id="designers-list-badge-view" class="badges-container"></div>
-        </section>
-
-        <!-- QUADRO KANBAN DE TAREFAS -->
-        <div class="kanban-board">
-            
-            <!-- Coluna: A Fazer -->
-            <div class="kanban-column">
-                <div class="column-header todo-header">
-                    <span><i class="fa-solid fa-list-check"></i> A Fazer</span>
-                    <span id="count-todo" class="counter-badge">0</span>
-                </div>
-                <div id="list-todo" class="task-list">
-                    <!-- Cards via JS -->
-                </div>
-            </div>
-
-            <!-- Coluna: Em Andamento -->
-            <div class="kanban-column">
-                <div class="column-header doing-header">
-                    <span><i class="fa-solid fa-spinner"></i> Em Andamento</span>
-                    <span id="count-doing" class="counter-badge">0</span>
-                </div>
-                <div id="list-doing" class="task-list">
-                    <!-- Cards via JS -->
-                </div>
-            </div>
-
-            <!-- Coluna: Concluído -->
-            <div class="kanban-column">
-                <div class="column-header done-header">
-                    <span><i class="fa-solid fa-circle-check"></i> Concluído</span>
-                    <span id="count-done" class="counter-badge">0</span>
-                </div>
-                <div id="list-done" class="task-list">
-                    <!-- Cards via JS -->
-                </div>
-            </div>
-
-        </div>
-
-        <!-- SEÇÃO DE HISTÓRICO DE MESES ENCERRADOS -->
-        <section class="historico-section">
+        <!-- HISTÓRICO DE MESES ANTERIORES (Visível para todos) -->
+        <section class="form-section" style="margin-top: 35px;">
             <h2><i class="fa-solid fa-box-archive"></i> Histórico de Meses Encerrados</h2>
-            <div id="historico-container" class="historico-grid">
-                <!-- Histórico preenchido via JS -->
+            <div id="historico-container">
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Nenhum mês encerrado ainda.</p>
             </div>
         </section>
 
     </main>
 
-    <!-- Rodapé com botão de exportar imagem -->
-    <footer class="main-footer">
-        <button class="btn-secondary" onclick="baixarQuadroImagem()">
-            <i class="fa-solid fa-camera"></i> Baixar Imagem do Quadro
-        </button>
+    <footer>
+        <p>&copy; 2026 Hub de Designers - Palmeiras. Todos os direitos reservados.</p>
     </footer>
 
     <script src="script.js"></script>
