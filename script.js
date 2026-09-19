@@ -185,7 +185,7 @@ function renderizarDesigners() {
     if (countElement) countElement.innerText = designers.length;
 }
 
-// --- RANKING E PONTUAÇÃO ---
+// --- RANKING E PONTUAÇÃO (Com Pódio e Penalização de -15 pts) ---
 function renderizarRanking() {
     const rankingContainer = document.getElementById('ranking-container');
     if (!rankingContainer) return;
@@ -204,23 +204,31 @@ function renderizarRanking() {
 
     let pontuacoes = designers.map(designer => {
         let concluidasTotal = todasConcluidas.filter(t => t.designer === designer).length;
+        let naoConcluidasTotal = tarefas.filter(t => t.designer === designer && t.status === 'doing').length;
         let emAndamentoAtivo = tarefas.filter(t => t.designer === designer && t.status === 'todo').length;
-        let pontos = concluidasTotal * 10;
-        return { designer, concluidas: concluidasTotal, emAndamento: emAndamentoAtivo, pontos };
+        
+        let pontos = (concluidasTotal * 10) - (naoConcluidasTotal * 15);
+        
+        return { designer, concluidas: concluidasTotal, naoConcluidas: naoConcluidasTotal, emAndamento: emAndamentoAtivo, pontos };
     });
 
     pontuacoes.sort((a, b) => b.pontos - a.pontos);
 
     pontuacoes.forEach((item, index) => {
+        let posicaoClass = '';
+        if (index === 0) posicaoClass = 'rank-1';
+        else if (index === 1) posicaoClass = 'rank-2';
+        else if (index === 2) posicaoClass = 'rank-3';
+
         let rankHtml = `
-            <div class="ranking-item">
+            <div class="ranking-item ${posicaoClass}">
                 <div class="ranking-info">
                     <span class="ranking-position">#${index + 1}</span>
                     <span class="ranking-name">${item.designer}</span>
                 </div>
                 <div class="ranking-stats" style="display: flex; gap: 15px; align-items: center; font-size: 0.85rem; color: var(--text-muted);">
-                    <span>Total Concluídas: <strong>${item.concluidas}</strong></span>
-                    <span>Em Andamento: <strong>${item.emAndamento}</strong></span>
+                    <span>Concluídas: <strong>${item.concluidas}</strong></span>
+                    <span>Não Concluídas: <strong style="color: var(--danger);">${item.naoConcluidas}</strong></span>
                     <span class="ranking-points">${item.pontos} pts</span>
                 </div>
             </div>
@@ -275,7 +283,7 @@ function renderizarTarefas() {
                 <div class="task-card-title">${tarefa.titulo}</div>
                 <div style="font-size: 0.85rem; color: var(--text-muted);">Designer: <strong>${tarefa.designer}</strong></div>
                 <div class="task-card-footer">
-                    <span style="display: flex; align-items: center; gap: 6px; color: var(--warning); font-size: 0.85rem;">
+                    <span style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem;">
                         <i class="fa-solid fa-calendar-days"></i> ${dataFormatada || 'Sem data'}
                     </span>
                     ${acoesHtml}
@@ -385,8 +393,9 @@ async function encerrarMes() {
 
     let pontuacoesFinais = designers.map(designer => {
         let concluidas = tarefas.filter(t => t.designer === designer && t.status === 'done').length;
-        let pontos = concluidas * 10;
-        return { designer, concluidas, pontos };
+        let naoConcluidas = tarefas.filter(t => t.designer === designer && t.status === 'doing').length;
+        let pontos = (concluidas * 10) - (naoConcluidas * 15);
+        return { designer, concluidas, naoConcluidas, pontos };
     });
 
     pontuacoesFinais.sort((a, b) => b.pontos - a.pontos);
@@ -398,7 +407,7 @@ async function encerrarMes() {
     await supabaseClient.from('tarefas').delete().neq('id', 0);
 
     await atualizarTudo();
-    alert('Mês encerrado com sucesso! O relatório foi salvo no histórico e as tarefas foram limpas, mas os pontos totais dos designers foram preservados.');
+    alert('Mês encerrado com sucesso! O relatório foi salvo no histórico e as tarefas foram limpas.');
 }
 
 async function apagarMesHistorico(id) {
@@ -427,7 +436,7 @@ function renderizarHistorico() {
 
     historicoMeses.forEach((mes) => {
         let vencedor = mes.ranking && mes.ranking.length > 0 ? mes.ranking[0] : null;
-        let textoVencedor = vencedor ? `<div class="historico-vencedor"><i class="fa-solid fa-trophy"></i> Destaque do Mês: <strong>${vencedor.designer}</strong> (${vencedor.concluidas} artes)</div>` : '';
+        let textoVencedor = vencedor ? `<div class="historico-vencedor"><i class="fa-solid fa-trophy"></i> Destaque do Mês: <strong>${vencedor.designer}</strong> (${vencedor.pontos} pts)</div>` : '';
         
         let htmlItensRanking = mes.ranking.map(r => `
             <div class="historico-ranking-row">

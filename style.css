@@ -279,6 +279,55 @@ button {
     font-weight: 700;
 }
 
+/* EFEITOS DO PÓDIO (OURO, PRATA E BRONZE) */
+.ranking-item.rank-1 {
+    border: 1px solid #f1c40f !important;
+    background: linear-gradient(135deg, rgba(241, 196, 15, 0.12) 0%, rgba(26, 31, 44, 0.8) 100%) !important;
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.15);
+}
+.ranking-item.rank-1 .ranking-position {
+    background-color: #f1c40f !important;
+    color: #111 !important;
+    border-color: #f1c40f !important;
+}
+.ranking-item.rank-1 .ranking-points {
+    background-color: rgba(241, 196, 15, 0.2);
+    color: #f1c40f;
+    border: 1px solid rgba(241, 196, 15, 0.4);
+}
+
+.ranking-item.rank-2 {
+    border: 1px solid #bdc3c7 !important;
+    background: linear-gradient(135deg, rgba(189, 195, 199, 0.1) 0%, rgba(26, 31, 44, 0.8) 100%) !important;
+    box-shadow: 0 0 12px rgba(189, 195, 199, 0.1);
+}
+.ranking-item.rank-2 .ranking-position {
+    background-color: #bdc3c7 !important;
+    color: #111 !important;
+    border-color: #bdc3c7 !important;
+}
+.ranking-item.rank-2 .ranking-points {
+    background-color: rgba(189, 195, 199, 0.2);
+    color: #ecf0f1;
+    border: 1px solid rgba(189, 195, 199, 0.4);
+}
+
+.ranking-item.rank-3 {
+    border: 1px solid #d35400 !important;
+    background: linear-gradient(135deg, rgba(211, 84, 0, 0.1) 0%, rgba(26, 31, 44, 0.8) 100%) !important;
+    box-shadow: 0 0 12px rgba(211, 84, 0, 0.1);
+}
+.ranking-item.rank-3 .ranking-position {
+    background-color: #d35400 !important;
+    color: #fff !important;
+    border-color: #d35400 !important;
+}
+.ranking-item.rank-3 .ranking-points {
+    background-color: rgba(211, 84, 0, 0.2);
+    color: #e67e22;
+    border: 1px solid rgba(211, 84, 0, 0.4);
+}
+
 /* QUADRO KANBAN & CARDS DE TAREFA */
 .board-section {
     background-color: var(--bg-card);
@@ -332,7 +381,7 @@ button {
     gap: 12px;
 }
 
-/* CARDS DE TAREFA - GRADIENTE TRANSPARENTE E BORDAS COLORIDAS */
+/* CARDS DE TAREFA */
 .task-card {
     border-radius: 10px;
     padding: 14px;
@@ -344,10 +393,14 @@ button {
     backdrop-filter: blur(4px);
 }
 
-.task-card.status-todo,
-.task-card.status-doing {
+.task-card.status-todo {
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(20, 24, 32, 0.6) 100%) !important;
     border: 1px solid var(--warning) !important;
+}
+
+.task-card.status-doing {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(20, 24, 32, 0.6) 100%) !important;
+    border: 1px solid var(--danger) !important;
 }
 
 .task-card.status-done {
@@ -524,4 +577,75 @@ footer {
     color: var(--text-muted);
     font-size: 0.85rem;
     background-color: var(--bg-surface);
+}
+
+/* --- ADAPTAÇÃO PARA MOBILE (RESPONSIVIDADE) --- */
+@media (max-width: 768px) {
+    /* Ajusta o cabeçalho para empilhar a logo e os botões */
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    /* Reduz o espaçamento do container principal */
+    .container {
+        padding: 1rem 0.8rem;
+        gap: 1.2rem;
+    }
+
+    /* Transforma o grid de estatísticas em coluna única */
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    /* Faz o Kanban empilhar as colunas verticalmente */
+    .kanban-board {
+        grid-template-columns: 1fr;
+    }
+
+    .kanban-column {
+        min-height: auto;
+    }
+
+    /* Ajusta os itens do ranking para telas pequenas */
+    .ranking-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .ranking-stats {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        font-size: 0.8rem;
+    }
+
+    /* Formulários e botões com largura total */
+    .form-section {
+        padding: 1.2rem;
+    }
+
+    button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .task-actions {
+        flex-direction: column;
+        width: 100%;
+        align-items: stretch;
+    }
+
+    .task-actions select {
+        width: 100%;
+    }
 }
