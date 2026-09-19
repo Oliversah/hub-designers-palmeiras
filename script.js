@@ -9,6 +9,7 @@ const SENHA_ADMIN = 'palmeiras1914';
 
 let designers = [];
 let tarefas = [];
+let tarefasConcluidasHistoricoGeral = []; // Armazena todas as tarefas concluídas de todos os tempos para o ranking geral
 let historicoMeses = [];
 let isAdmin = sessionStorage.getItem('hub_admin') === 'true';
 
@@ -89,6 +90,19 @@ async function carregarDadosDoBanco() {
         const resHistorico = await supabaseClient.from('historico_meses').select('*');
         if (!resHistorico.error) {
             historicoMeses = resHistorico.data;
+            
+            // Reconstrói o histórico geral de concluídas somando os meses arquivados + tarefas ativas concluídas
+            tarefasConcluidasHistoricoGeral = [];
+            historicoMeses.forEach(mes => {
+                if (mes.ranking && Array.isArray(mes.ranking)) {
+                    mes.ranking.forEach(r => {
+                        // Cria um array virtual de concluídas para contabilizar no acumulado geral
+                        for (let i = 0; i < r.concluidas; i++) {
+                            tarefasConcluidasHistoricoGeral.push({ designer: r.designer, status: 'done' });
+                        }
+                    });
+                }
+            });
         }
     } catch (err) {
         console.error("Erro ao carregar dados do Supabase:", err);
@@ -173,7 +187,7 @@ function renderizarDesigners() {
     if (countElement) countElement.innerText = designers.length;
 }
 
-// --- RANKING E PONTUAÇÃO ---
+// --- RANKING E PONTUAÇÃO (ACUMULADA TOTAL) ---
 function renderizarRanking() {
     const rankingContainer = document.getElementById('ranking-container');
     if (!rankingContainer) return;
@@ -185,11 +199,17 @@ function renderizarRanking() {
         return;
     }
 
+    // Junta as tarefas do mês atual com o histórico de meses passados para formar o total acumulado
+    const todasConcluidas = [
+        ...tarefas.filter(t => t.status === 'done'),
+        ...tarefasConcluidasHistoricoGeral
+    ];
+
     let pontuacoes = designers.map(designer => {
-        let concluidas = tarefas.filter(t => t.designer === designer && t.status === 'done').length;
-        let emAndamento = tarefas.filter(t => t.designer === designer && t.status === 'doing').length;
-        let pontos = concluidas * 10;
-        return { designer, concluidas, emAndamento, pontos };
+        let concluidasTotal = todasConcluidas.filter(t => t.designer === designer).length;
+        let emAndamentoAtivo = tarefas.filter(t => t.designer === designer && t.status === 'doing').length;
+        let pontos = concluidasTotal * 10;
+        return { designer, concluidas: concluidasTotal, emAndamento: emAndamentoAtivo, pontos };
     });
 
     pontuacoes.sort((a, b) => b.pontos - a.pontos);
@@ -202,7 +222,7 @@ function renderizarRanking() {
                     <span class="ranking-name">${item.designer}</span>
                 </div>
                 <div class="ranking-stats" style="display: flex; gap: 15px; align-items: center; font-size: 0.85rem; color: var(--text-muted);">
-                    <span>Concluídas: <strong>${item.concluidas}</strong></span>
+                    <span>Total Concluídas: <strong>${item.concluidas}</strong></span>
                     <span>Em Andamento: <strong>${item.emAndamento}</strong></span>
                     <span class="ranking-points">${item.pontos} pts</span>
                 </div>
@@ -361,10 +381,11 @@ async function encerrarMes() {
         return;
     }
 
-    if (!confirm('Deseja realmente encerrar o mês atual? Isso salvará o ranking e limpará as tarefas.')) {
+    if (!confirm('Deseja realmente encerrar o mês atual? Isso salvará o relatório do mês no histórico e limpará as tarefas atuais do quadro.')) {
         return;
     }
 
+    // Calcula apenas as tarefas concluídas neste ciclo atual antes de limpar
     let pontuacoesFinais = designers.map(designer => {
         let concluidas = tarefas.filter(t => t.designer === designer && t.status === 'done').length;
         let pontos = concluidas * 10;
@@ -380,7 +401,7 @@ async function encerrarMes() {
     await supabaseClient.from('tarefas').delete().neq('id', 0);
 
     await atualizarTudo();
-    alert('Mês encerrado e salvo no histórico com sucesso!');
+    alert('Mês encerrado com sucesso! O relatório foi salvo no histórico e as tarefas foram limpas, mas os pontos totais dos designers foram preservados.');
 }
 
 async function apagarMesHistorico(id) {
@@ -409,7 +430,7 @@ function renderizarHistorico() {
 
     historicoMeses.forEach((mes) => {
         let vencedor = mes.ranking && mes.ranking.length > 0 ? mes.ranking[0] : null;
-        let textoVencedor = vencedor ? `<div class="historico-vencedor"><i class="fa-solid fa-trophy"></i> Destaque: <strong>${vencedor.designer}</strong> (${vencedor.concluidas} artes)</div>` : '';
+        let textoVencedor = vencedor ? `<div class="historico-vencedor"><i class="fa-solid fa-trophy"></i> Destaque do Mês: <strong>${vencedor.designer}</strong> (${vencedor.concluidas} artes)</div>` : '';
         
         let htmlItensRanking = mes.ranking.map(r => `
             <div class="historico-ranking-row">
@@ -418,7 +439,6 @@ function renderizarHistorico() {
             </div>
         `).join('');
         
-        // Exibe o botão de apagar apenas se o usuário for Admin
         let botaoApagar = isAdmin ? `<button class="btn-delete-task" onclick="apagarMesHistorico('${mes.id}')" title="Apagar Mês"><i class="fa-solid fa-trash"></i></button>` : '';
 
         let cardHtml = `
